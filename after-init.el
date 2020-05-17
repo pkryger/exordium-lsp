@@ -19,7 +19,9 @@
 
 (use-package lsp-mode
   :if exordium-lsp-mode-enable
-  :hook ((c-mode-common  . lsp))
+  :hook ((c-mode-common  . lsp)
+         (ess-mode . lsp)
+         (inferior-ess-mode . lsp))
   :init
   (setq-default lsp-clients-clangd-executable
                 (seq-find #'executable-find exordium-lsp-clangd-executable))
@@ -37,6 +39,12 @@
 
   ;; process buffer for the LSP server needs to be larger
   (setq read-process-output-max (* 1024 1024)) ;; 1mb
+
+  (lsp-register-client
+   (make-lsp-client :new-connection
+                    (lsp-stdio-connection '("R" "--slave" "-e" "languageserver::run()"))
+                    :major-modes '(ess-mode inferior-ess-mode)
+                    :server-id 'lsp-R))
   )
 
 (use-package lsp-ui
